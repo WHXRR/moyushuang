@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+@import 'nprogress/nprogress.css';
+
+#nprogress .bar {
+  background: #ef857d !important;
+}
+
+.home-form input,
+.home-form .ant-input-outlined {
+  background-color: transparent;
+}
+
+.cat {
+  animation: walk var(--walk-duration, 4s) infinite linear;
+}
+.cat:hover {
+  animation-play-state: paused;
+}
+
+@keyframes walk {
+  0% {
+    transform: translateX(0) scaleX(1);
+  }
+  50% {
+    transform: translateX(var(--max-move)) scaleX(1);
+  }
+  51% {
+    transform: translateX(var(--max-move)) scaleX(-1);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+  -webkit-border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:vertical {
+  height: 6px;
+  background-color: #cccccc;
+  -webkit-border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:horizontal {
+  width: 6px;
+  background-color: #cccccc;
+  -webkit-border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:vertical:hover,
+::-webkit-scrollbar-thumb:horizontal:hover {
+  background-color: #cccccc;
+}
+
+.message-box-right {
+  transform: scale(0);
+  transform-origin: right bottom;
+  transition: all 0.2s;
+}
+.message-box-left {
+  transform: scale(0);
+  transform-origin: left bottom;
+  transition: all 0.2s;
+}
+.message-box-right.show,
+.message-box-left.show {
+  transform: scale(1);
+}

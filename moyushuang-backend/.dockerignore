@@ -1,0 +1,48 @@
+node_modules
+npm-debug.log*
+dist
+build
+coverage
+.nyc_output
+
+# Git相关
+.git
+.gitignore
+README.md
+
+# 环境文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE文件
+.vscode
+.idea
+*.swp
+*.swo
+
+# 日志文件
+logs
+*.log
+
+# 临时文件
+.temp
+.tmp
+
+# 测试文件
+test
+*.spec.ts
+*.test.ts
+
+# 开发工具配置
+.prettierrc
+eslint.config.mjs
+
+# Docker相关
+Dockerfile
+.dockerignore
+
+# 生成的文件
+generated

@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @db.VarChar(50) @unique
+  password String @db.VarChar(255)
+  email String @db.VarChar(50) @unique
+  headPic String @db.VarChar(100) @default("baimao")
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
+  role String @default("user")
+
+  chatrooms UserChatroom[]
+  messages ChatHistory[]
+}
+
+model Chatroom {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(50)
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
+
+  users UserChatroom[]
+  messages ChatHistory[]
+}
+
+model UserChatroom {
+  userId Int
+  chatroomId Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatroom Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+
+  @@id([userId, chatroomId])
+}
+
+model ChatHistory {
+  id Int @id @default(autoincrement())
+  content String @db.VarChar(500)
+  type Int
+  chatroomId Int
+  userId Int
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatroom Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+}
