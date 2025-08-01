@@ -26,7 +26,15 @@ interface SendMessagePayload {
   };
 }
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+  transports: ['websocket', 'polling'],
+  allowEIO3: true,
+})
 export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
   @WebSocketServer() server: Server;
