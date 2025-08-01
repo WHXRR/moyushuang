@@ -115,10 +115,11 @@ npm install
 复制环境变量文件并配置：
 
 ```bash
-cp .env.example .env
+cp .env.example .env.development
+cp .env.example .env.production
 ```
 
-编辑 `.env` 文件：
+编辑 `.env.development` 文件：
 
 ```env
 # 后端 API 地址
@@ -126,6 +127,16 @@ VITE_API_BASE_URL=http://localhost:3000
 
 # Socket.IO 服务地址
 VITE_SOCKET_URL=http://localhost:3000
+```
+
+编辑 `.env.production` 文件：
+
+```env
+# 后端 API 地址
+VITE_API_BASE_URL=/
+
+# Socket.IO 服务地址
+VITE_SOCKET_URL=/api
 ```
 
 ### 4. 启动开发服务器
