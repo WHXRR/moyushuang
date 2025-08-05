@@ -20,11 +20,11 @@ git reset --hard origin/$BRANCH
 
 # 停止旧服务
 echo "停止旧服务..."
-docker compose -f $DOCKER_COMPOSE_FILE down --remove-orphans || true
+docker-compose -f $DOCKER_COMPOSE_FILE down --remove-orphans || true
 
 # 构建并启动新服务
 echo "构建并启动新服务..."
-docker compose -f $DOCKER_COMPOSE_FILE up -d --build
+docker-compose -f $DOCKER_COMPOSE_FILE up -d --build
 
 # 等待服务启动
 echo "等待服务启动..."

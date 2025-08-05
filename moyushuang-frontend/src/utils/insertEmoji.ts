@@ -1,3 +1,5 @@
+import getAllEmoji from './getAllEmoji'
+
 interface Image {
   name: string
   src: string
@@ -58,8 +60,10 @@ export function transformEmojiHtmlToText(html: string): string {
 }
 
 export function transformTextToEmojiHtml(text: string): string {
+  const images = getAllEmoji()
   return text.replace(/\[emoji:([^\]]+)\]/g, (_, name) => {
-    const imgSrc = `/src/assets/images/emoji/${encodeURIComponent(name)}.png`
-    return `<img src="${imgSrc}" alt="${name}" class="inline-block mx-1 w-4 h-4 align-text-bottom" data-name="${name}" />`
+    const image = images.find((item) => item.name === name)
+    if (!image) return `[emoji:${name}]`
+    return `<img src="${image.src}" alt="${name}" class="inline-block mx-1 w-4 h-4 align-text-bottom" data-name="${name}" />`
   })
 }
