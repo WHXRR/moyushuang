@@ -79,29 +79,39 @@ export class AiService {
       let shouldSearch = false;
       let shouldByTime = false;
       let shouldByEvent = false;
-      let eventName = ''
+      let eventName = '';
       switch (event) {
         case 'drink':
-          eventName = '你在喝水'
-          break
+          eventName = '你在喝水';
+          break;
         case 'eat':
-          eventName = '你在吃饭'
-          break
+          eventName = '你在吃饭';
+          break;
         case 'toilet':
-          eventName = '你在上厕所'
-          break
+          eventName = '你在上厕所';
+          break;
         case 'play':
-          eventName = '你在玩耍'
-          break
+          eventName = '你在玩耍';
+          break;
         case 'touch':
-          eventName = '主人抚摸了你'
-          break
+          eventName = '主人抚摸了你';
+          break;
         case 'click':
-          eventName = '主人点击了你'
-          break
+          eventName = '主人点击了你';
+          break;
       }
 
-      if (eventName && (['你在吃饭', '你在喝水', '主人抚摸了你', '你在上厕所', '你在玩耍'].includes(eventName) || count > 0.6)) {
+      if (
+        eventName &&
+        ([
+          '你在吃饭',
+          '你在喝水',
+          '主人抚摸了你',
+          '你在上厕所',
+          '你在玩耍',
+        ].includes(eventName) ||
+          count > 0.6)
+      ) {
         shouldByEvent = true;
       } else if (count < 0.3) {
         shouldSearch = true;
@@ -116,7 +126,8 @@ export class AiService {
           '有趣的事实',
           '今天是什么节日',
         ];
-        const randomQuery = searchQueries[Math.floor(Math.random() * searchQueries.length)];
+        const randomQuery =
+          searchQueries[Math.floor(Math.random() * searchQueries.length)];
         searchInfo = await this.searchInfo(randomQuery);
       }
 
@@ -158,11 +169,13 @@ export class AiService {
         '今天天气真好呢！',
         '我要睡觉觉了...',
       ];
-      return fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+      return fallbackMessages[
+        Math.floor(Math.random() * fallbackMessages.length)
+      ];
     }
   }
 
-  clearUserMemory(userId: number) {
+  async clearUserMemory(userId: number) {
     const memory = this.userMemories.get(userId);
     if (memory) {
       memory.clear();

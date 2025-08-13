@@ -6,7 +6,7 @@ import CatTouch from '@/assets/images/cat_touch.png'
 import CatToilet from '@/assets/images/cat_toilet.png'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { PetOptions } from './components/PetOptions'
-import { clearUserMemory, generateCatMessage } from '@/interfaces/api'
+import { generateCatMessage } from '@/interfaces/api'
 
 export function DesktopPet() {
   const [message, setMessage] = useState('')
