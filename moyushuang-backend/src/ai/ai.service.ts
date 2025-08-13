@@ -133,7 +133,7 @@ export class AiService {
 
       let timeInfo = '';
       if (shouldByTime) {
-        timeInfo = new Date().toLocaleString();
+        timeInfo = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
       }
 
       const prompt = `
