@@ -112,3 +112,14 @@ export async function updateGroup(chatroomId: number, name: string) {
 export async function delGroup(chatroomId: number) {
   return await axiosInstance.delete(`/chatroom/${chatroomId}`)
 }
+
+export async function generateCatMessage(event?: string) {
+  return await axiosInstance.post(`/ai/cat-message`, {
+    event,
+  })
+}
+
+export async function clearUserMemory() {
+  return await axiosInstance.delete(`/ai/memory`)
+}
+

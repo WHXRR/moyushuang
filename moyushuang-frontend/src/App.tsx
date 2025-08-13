@@ -2,8 +2,11 @@ import { RouterProvider } from 'react-router-dom'
 import { router } from '@/router'
 import { ConfigProvider, App as AntdApp } from 'antd'
 import BGImage from '@/assets/images/bg.webp'
+import { DesktopPet } from './pages/DesktopPet/DesktopPet'
+import useStore from './store'
 
 export function App() {
+  const { userInfo } = useStore()
   return (
     <>
       <ConfigProvider
@@ -25,10 +28,11 @@ export function App() {
         }}
       >
         <AntdApp
-          className="w-screen h-screen bg-cover bg-[#fbf7f4]"
+          className="w-screen h-screen bg-cover bg-[#fbf7f4] relative"
           style={{ backgroundImage: `url(${BGImage})` }}
         >
           <RouterProvider router={router} />
+          {userInfo.token && <DesktopPet />}
         </AntdApp>
       </ConfigProvider>
     </>

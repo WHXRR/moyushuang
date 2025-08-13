@@ -9,7 +9,7 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 3000,
+  timeout: 30000,
 })
 
 axiosInstance.interceptors.request.use((config) => {
