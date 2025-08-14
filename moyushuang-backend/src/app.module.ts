@@ -47,23 +47,6 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     ChatModule,
     ChatHistoryModule,
     AiModule,
-    ThrottlerModule.forRoot([
-      {
-        name: 'short',
-        ttl: 60000,
-        limit: 2,
-      },
-      {
-        name: 'medium',
-        ttl: 600000,
-        limit: 5,
-      },
-      {
-        name: 'long',
-        ttl: 3600000,
-        limit: 10,
-      },
-    ]),
   ],
   controllers: [AppController],
   providers: [
@@ -76,10 +59,6 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
   ],
 })
-export class AppModule {}
+export class AppModule { }

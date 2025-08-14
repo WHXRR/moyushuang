@@ -4,7 +4,7 @@ import type {
   UpdatePassword,
   UpdateUserInfoType,
 } from '@/types/user'
-import { axiosInstance } from '.'
+import { axiosInstance, type CustomAxiosRequestConfig } from '.'
 
 export async function login(loginUser: LoginFormValue) {
   return await axiosInstance.post('/user/login', loginUser)
@@ -114,9 +114,15 @@ export async function delGroup(chatroomId: number) {
 }
 
 export async function generateCatMessage(event?: string) {
-  return await axiosInstance.post(`/ai/cat-message`, {
-    event,
-  })
+  const config: CustomAxiosRequestConfig = {
+    hiddenTips: true
+  }
+  return await axiosInstance.post(`/ai/cat-message`,
+    {
+      event
+    },
+    config
+  )
 }
 
 export async function clearUserMemory() {

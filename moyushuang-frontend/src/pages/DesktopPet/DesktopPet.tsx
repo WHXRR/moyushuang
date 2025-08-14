@@ -33,6 +33,7 @@ export function DesktopPet() {
           setMessage(res.data.data.message)
         }
       } catch (error) {
+        setMessage('喵~')
         console.error('生成消息失败:', error)
       } finally {
         if (requestIdRef.current === requestId) {
