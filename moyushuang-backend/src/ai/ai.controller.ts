@@ -1,8 +1,10 @@
-import { Controller, Post, Body, Get, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, UseGuards, Res, Sse, Query, Headers } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { NeedLogin, UserInfo } from '../decorator/custom.decorator';
 import { GenerateCatMessageDto } from './dto/ai.dto';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Response } from 'express';
+import { interval, map, Observable, take } from 'rxjs';
 
 @Controller('ai')
 @NeedLogin()
@@ -26,6 +28,27 @@ export class AiController {
         message,
       },
     };
+  }
+
+  @Sse('cat-message-stream')
+  async generateCatMessageStream(
+    @Query('event') event: string,
+    @Query('userId') userId: string,
+    @Res() res: Response,
+  ) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    try {
+      const stream = await this.aiService.generateCatMessageStream(Number(userId), event);
+      for await (const chunk of stream) {
+        res.write(`data: ${chunk}\n\n`);
+      }
+      res.end();
+    } catch (error) {
+      res.write(`data: ${JSON.stringify({ type: 'error', message: '生成消息失败' })}\n\n`);
+      res.end();
+    }
   }
 
   @Get('memory')

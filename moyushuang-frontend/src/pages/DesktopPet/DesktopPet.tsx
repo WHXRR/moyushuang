@@ -6,7 +6,7 @@ import CatTouch from '@/assets/images/cat_touch.png'
 import CatToilet from '@/assets/images/cat_toilet.png'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { PetOptions } from './components/PetOptions'
-import { generateCatMessage } from '@/interfaces/api'
+import useStore from '@/store'
 
 export function DesktopPet() {
   const [message, setMessage] = useState('')
@@ -17,43 +17,87 @@ export function DesktopPet() {
   // 生成唯一请求ID
   const generateRequestId = () => (requestIdRef.current += 1)
 
+  const { userInfo } = useStore()
+
   // 自动说话功能
-  const generateMessage = useCallback(
+  // 流式生成
+  const generateStreamMessage = useCallback(
     async (event?: string, forceGenerate = false) => {
       if (!forceGenerate && (isThinking || showMessage)) return
+      setIsThinking(true)
+      setShowMessage(true)
+      setMessage('')
+
       const requestId = generateRequestId()
-      try {
-        setIsThinking(true)
-        setShowMessage(true)
-        const res = await generateCatMessage(event)
-        if (
-          (res.status === 201 || res.status === 200) &&
-          requestIdRef.current === requestId
-        ) {
-          setMessage(res.data.data.message)
-        }
-      } catch (error) {
-        setMessage('喵~')
-        console.error('生成消息失败:', error)
-      } finally {
-        if (requestIdRef.current === requestId) {
-          setIsThinking(false)
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/ai/cat-message-stream?event=${event || ''}`,
+        {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        },
+      )
+      const reader = res.body?.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      if (requestIdRef.current === requestId) {
+        setIsThinking(false)
+      }
+
+      while (true) {
+        const { value, done } = await reader!.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        let lines = buffer.split('\n\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const text = line.replace(/^data: /, '')
+            setMessage((prev) => prev + text)
+          }
         }
       }
     },
     [isThinking, showMessage],
   )
 
+  // 一次性生成
+  // const generateStreamMessage = useCallback(
+  //   async (event?: string, forceGenerate = false) => {
+  //     if (!forceGenerate && (isThinking || showMessage)) return
+  //     const requestId = generateRequestId()
+  //     try {
+  //       setIsThinking(true)
+  //       setShowMessage(true)
+  //       const res = await generateCatMessage(event)
+  //       if (
+  //         (res.status === 201 || res.status === 200) &&
+  //         requestIdRef.current === requestId
+  //       ) {
+  //         setMessage(res.data.data.message)
+  //       }
+  //     } catch (error) {
+  //       setMessage('喵~')
+  //       console.error('生成消息失败:', error)
+  //     } finally {
+  //       if (requestIdRef.current === requestId) {
+  //         setIsThinking(false)
+  //       }
+  //     }
+  //   },
+  //   [isThinking, showMessage],
+  // )
+
   // 定时自动说话
   useEffect(() => {
     const interval = setInterval(() => {
-      generateMessage()
+      generateStreamMessage()
     }, 600000)
     return () => clearInterval(interval)
-  }, [generateMessage])
+  }, [generateStreamMessage])
 
   useEffect(() => {
-    generateMessage()
+    generateStreamMessage()
   }, [])
 
   const timerRef = useRef<number>(0)
@@ -74,7 +118,7 @@ export function DesktopPet() {
     setCatStatus(e)
     setIsThinking(false)
     setShowMessage(false)
-    generateMessage(e, true)
+    generateStreamMessage(e, true)
   }
 
   // 消息自动隐藏
@@ -129,7 +173,7 @@ export function DesktopPet() {
               src={CatPlay}
               alt="pet"
               className="w-full h-full object-contain cursor-pointer"
-              onClick={() => generateMessage('click')}
+              onClick={() => generateStreamMessage('click')}
             />
             <PetOptions
               isHovered={isHovered}
