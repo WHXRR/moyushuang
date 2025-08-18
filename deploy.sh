@@ -111,7 +111,7 @@ fi
 # 检查后端HTTP响应
 if check_service_health "后端HTTP" \
     "curl -f -m 5 http://localhost:3000" \
-    30 3 \
+    60 5 \
     "后端服务HTTP响应正常" \
     "后端服务HTTP响应超时"; then
     backend_http_ready=true
