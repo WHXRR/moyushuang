@@ -31,6 +31,10 @@ export class AiController {
   }
 
   @Sse('cat-message-stream')
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ short: { limit: 3, ttl: 60000 } })
+  @Throttle({ medium: { limit: 10, ttl: 600000 } })
+  @Throttle({ long: { limit: 20, ttl: 3600000 } })
   async generateCatMessageStream(
     @Query('event') event: string,
     @Query('userId') userId: string,

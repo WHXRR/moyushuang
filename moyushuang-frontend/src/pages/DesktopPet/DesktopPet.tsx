@@ -35,6 +35,13 @@ export function DesktopPet() {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       )
+      if (!res.ok) {
+        if (res.status === 429) {
+          setIsThinking(false)
+          setMessage('本喵累了，让本喵休息会再陪你说话')
+          return
+        }
+      }
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
