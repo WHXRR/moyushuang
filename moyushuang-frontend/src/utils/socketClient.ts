@@ -72,6 +72,10 @@ export function initSocket(
     useStore.getState().updateMessageList(message)
   })
 
+  socket.on('chatroomClosed', () => {
+    window.location.href = '/home'
+  })
+
   return socket
 }
 

@@ -17,7 +17,7 @@ export function DesktopPet() {
   // 生成唯一请求ID
   const generateRequestId = () => (requestIdRef.current += 1)
 
-  const { userInfo } = useStore()
+  const { userInfo, chatroomStatus } = useStore()
 
   // 自动说话功能
   // 流式生成
@@ -141,8 +141,43 @@ export function DesktopPet() {
     }
   }, [showMessage, isThinking, message, catStatus])
 
+  const [countdown, setCountdown] = useState('')
+  useEffect(() => {
+    if (!chatroomStatus.closeTime) {
+      setCountdown('')
+      return
+    }
+    const updateCountdown = () => {
+      const now = Date.now()
+      const remaining = chatroomStatus.closeTime - now
+
+
+      if (remaining <= 0) {
+        setCountdown('已关闭')
+        return
+      }
+
+      const hours = Math.floor(remaining / (1000 * 60 * 60))
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000)
+
+      if (hours > 0) {
+        setCountdown(
+          `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+        )
+      } else {
+        setCountdown(
+          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+        )
+      }
+    }
+    updateCountdown()
+    const timer = setInterval(updateCountdown, 1000)
+    return () => clearInterval(timer)
+  }, [chatroomStatus.closeTime])
+
   return (
-    <div className="fixed w-28 h-28 right-10 bottom-10">
+    <div className="fixed right-10 bottom-10">
       <div
         className={`absolute top-3 -left-3 bg-[#ef857d] text-white p-2 rounded-md text-xs -translate-x-full transition-all duration-300 max-w-[200px] break-words pointer-events-none ${
           showMessage ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
@@ -227,6 +262,7 @@ export function DesktopPet() {
           </div>
         )}
       </div>
+      <div className="text-center text-xs">{countdown}</div>
     </div>
   )
 }

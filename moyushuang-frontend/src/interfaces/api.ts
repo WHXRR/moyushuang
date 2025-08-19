@@ -129,3 +129,18 @@ export async function clearUserMemory() {
   return await axiosInstance.delete(`/ai/memory`)
 }
 
+export async function getChatroomStatus() {
+  return await axiosInstance.get(`/chatroom/status`)
+}
+
+export async function updateChatroomControlMode(mode: 'auto' | 'manual') {
+  return await axiosInstance.post(`/chatroom/set-control-mode`, {
+    mode,
+  })
+}
+
+export async function updateChatroomManualStatus(status: boolean) {
+  return await axiosInstance.post(`/chatroom/set-manual-status`, {
+    status,
+  })
+}

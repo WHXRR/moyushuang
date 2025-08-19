@@ -38,15 +38,19 @@ axiosInstance.interceptors.response.use(
   (error) => {
     const config = error.config as CustomAxiosRequestConfig
     const { data } = error.response
-    if (!config.hiddenTips) {
-      message.error(data.message)
-    }
+    NProgress.done()
     if (data.statusCode === 401) {
       setTimeout(() => {
         window.location.href = '/'
       }, 500)
+      return Promise.reject(error)
+    } else if (data.statusCode === 403) {
+      message.error(data.error)
+      return Promise.reject(error)
     }
-    NProgress.done()
+    if (!config.hiddenTips) {
+      message.error(data.message)
+    }
     return Promise.reject(error)
   },
 )

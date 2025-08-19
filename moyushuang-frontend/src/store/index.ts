@@ -14,6 +14,16 @@ interface StoreState {
   updateOnlineUserIds: (data: number[]) => void
   chatroomUsers: UserInfo[]
   updateChatroomUsers: (data: UserInfo[]) => void
+  chatroomStatus: {
+    isOpen: boolean
+    closeTime: number
+    status: 'auto' | 'manual'
+  }
+  updateChatroomStatus: (data: {
+    isOpen: boolean
+    closeTime: number
+    status: 'auto' | 'manual'
+  }) => void
 }
 
 const useStore = create<StoreState>()(
@@ -59,6 +69,12 @@ const useStore = create<StoreState>()(
         }),
       chatroomUsers: [],
       updateChatroomUsers: (data) => set({ chatroomUsers: data }),
+      chatroomStatus: {
+        isOpen: true,
+        closeTime: 0,
+        status: 'auto',
+      },
+      updateChatroomStatus: (data) => set({ chatroomStatus: data }),
     }),
     {
       name: 'moyushuang',

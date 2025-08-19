@@ -1,6 +1,7 @@
 import { Tools } from './Tools'
 import { Header } from './Header'
 import { ChatroomList } from './ChatroomList'
+import { UnderMaintenance } from '@/components/UnderMaintenance'
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
           <ChatroomList />
         </div>
       </div>
+      <UnderMaintenance />
     </div>
   )
 }

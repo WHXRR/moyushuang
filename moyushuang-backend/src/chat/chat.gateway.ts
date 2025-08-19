@@ -10,6 +10,7 @@ import { Server, Socket } from 'socket.io';
 import { ChatHistoryService } from 'src/chat-history/chat-history.service';
 import { UserService } from 'src/user/user.service';
 import { ChatroomService } from 'src/chatroom/chatroom.service';
+import { ChatroomScheduleService } from 'src/chatroom/chatroom-schedule.service';
 
 interface JoinRoomPayLoad {
   chatroomId: number;
@@ -36,10 +37,45 @@ interface SendMessagePayload {
   allowEIO3: true,
 })
 export class ChatGateway {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService) { }
   @WebSocketServer() server: Server;
 
   private roomUserMap = new Map<number, Map<string, JoinRoomPayLoad>>();
+  private statusCheckInterval: NodeJS.Timeout;
+
+  @Inject(ChatroomScheduleService)
+  private scheduleService: ChatroomScheduleService;
+
+  onModuleInit() {
+    this.statusCheckInterval = setInterval(() => {
+      this.checkChatroomStatus();
+    }, 60000);
+  }
+
+  onModuleDestroy() {
+    if (this.statusCheckInterval) {
+      clearInterval(this.statusCheckInterval);
+    }
+  }
+
+  private checkChatroomStatus() {
+    const isOpen = this.scheduleService.isChatroomOpen();
+    if (!isOpen) {
+      this.server.emit('chatroomClosed');
+
+      setTimeout(() => {
+        this.server.disconnectSockets();
+        this.roomUserMap.clear();
+      }, 2000);
+    }
+  }
+
+  handleConnection(client: Socket) {
+    const isOpen = this.scheduleService.isChatroomOpen();
+    if (!isOpen) {
+      client.disconnect();
+    }
+  }
 
   handleDisconnect(client: Socket) {
     const socketId = client.id;
@@ -98,6 +134,13 @@ export class ChatGateway {
 
   @SubscribeMessage('sendMessage')
   async sendMessage(@MessageBody() payload: SendMessagePayload) {
+
+    const isOpen = this.scheduleService.isChatroomOpen();
+    if (!isOpen) {
+      this.server.to(payload.chatroomId.toString()).emit('chatroomClosed');
+      return;
+    }
+
     const roomName = payload.chatroomId.toString();
 
     await this.chatHistoryService.add(payload.chatroomId, {
