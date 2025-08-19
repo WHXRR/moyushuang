@@ -32,7 +32,9 @@ export function App() {
           style={{ backgroundImage: `url(${BGImage})` }}
         >
           <RouterProvider router={router} />
-          {userInfo.token && <DesktopPet />}
+          <div className="hidden md:block">
+            {userInfo.token && <DesktopPet />}
+          </div>
         </AntdApp>
       </ConfigProvider>
     </>
