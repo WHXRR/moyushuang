@@ -68,11 +68,15 @@ export class ChatroomScheduleService {
       return null;
     }
 
-    const beijingTime = this.getBeijingTime();
-    const closeTime = new Date(beijingTime);
-    closeTime.setHours(18, 0, 0, 0);
+    const now = new Date();
 
-    // 返回关闭时间的时间戳（毫秒）
-    return closeTime.getTime();
+    const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 10, 0, 0, 0);
+    const closeTimestamp = today.getTime();
+
+    console.log('Current UTC Time:', now.toISOString());
+    console.log('Beijing 18:00 as UTC 10:00:', today.toISOString());
+    console.log('Close Timestamp:', closeTimestamp);
+
+    return closeTimestamp;
   }
 }
