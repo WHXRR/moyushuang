@@ -16,7 +16,8 @@ export class ChatroomScheduleService {
    */
   private getBeijingTime(): Date {
     const now = new Date();
-    const beijingTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Shanghai"}));
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const beijingTime = new Date(utc + (8 * 3600000)); // 北京时间 UTC+8
     return beijingTime;
   }
 
