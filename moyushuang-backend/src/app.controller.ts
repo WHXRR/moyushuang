@@ -6,14 +6,4 @@ import { NeedLogin } from './decorator/custom.decorator';
 @NeedLogin()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
-  @Get('aaa')
-  aaa() {
-    return 'aaa1';
-  }
-
-  @Get('bbb')
-  bbb() {
-    return 'bbb';
-  }
 }

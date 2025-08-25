@@ -4,7 +4,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BufferMemory } from 'langchain/memory';
 import { ConversationChain } from 'langchain/chains';
-import { HumanMessage } from '@langchain/core/messages';
+import { HumanMessage, MessageContent } from '@langchain/core/messages';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 
 @Injectable()
 export class AiService {
@@ -263,6 +265,111 @@ export class AiService {
         '我要睡觉觉了...',
       ];
       yield fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+    }
+  }
+
+  async summaryArticle(article: string) {
+    // 检查文章长度
+    const maxSingleChunkSize = 20000;
+    this.logger.log(`文章长度：${article.length}`);
+
+    if (article.length <= maxSingleChunkSize) {
+      // 直接处理短文章
+      return this.processSingleChunk(article);
+    } else {
+      // 分块处理长文章
+      return this.processLongArticle(article);
+    }
+  }
+
+  async processLongArticle(article: string) {
+    const splitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 15000,
+      chunkOverlap: 1000,
+    });
+
+    const chunks = await splitter.splitText(article);
+
+    // 处理每个块
+    const summaries = await Promise.all(
+      chunks.map(chunk => this.processSingleChunk(chunk))
+    );
+
+    return this.processSingleChunk(
+      `整合以下总结：\n\n${summaries.join('\n\n')}`
+    );
+  }
+
+  async processSingleChunk(article: string) {
+    const prompt = PromptTemplate.fromTemplate(`
+      请对以下文章进行总结，控制在200字以内：
+      <article>
+      {article}
+      </article>
+    `);
+    const formattedPrompt = await prompt.format({ article });
+    const result = await this.llm.invoke(formattedPrompt);
+    return result.content;
+  }
+
+  // 在AiService类中添加流式总结方法
+  async summaryArticleStream(article: string) {
+    const maxSingleChunkSize = 20000;
+    this.logger.log(`文章长度：${article.length}`);
+
+    if (article.length <= maxSingleChunkSize) {
+      // 短文章直接流式处理
+      return this.processSingleChunkStream(article);
+    } else {
+      // 长文章分块流式处理
+      return this.processLongArticleStream(article);
+    }
+  }
+
+  private async *processSingleChunkStream(article: string) {
+    const stream = await this.llm.stream([
+      {
+        role: 'user',
+        content: `请对以下文章进行总结，控制在200字以内：\n\n${article}`
+      }
+    ]);
+
+    for await (const chunk of stream) {
+      if (chunk.content) {
+        yield chunk.content;
+      }
+    }
+  }
+
+  private async *processLongArticleStream(article: string) {
+    const splitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 15000,
+      chunkOverlap: 1000,
+    });
+
+    const chunks = await splitter.splitText(article);
+    yield `检测到长文章，将分为${chunks.length}个部分处理...\n\n`;
+
+    // 处理每个块
+    const summaries: MessageContent[] = [];
+    for (let i = 0; i < chunks.length; i++) {
+      yield `正在处理第${i + 1}/${chunks.length}部分...\n`;
+
+      const summary = await this.processSingleChunk(chunks[i]);
+      summaries.push(summary);
+
+      yield `第${i + 1}部分处理完成\n`;
+    }
+
+    // 最终整合
+    yield '\n正在整合所有部分的总结...\n\n';
+
+    const finalSummaryStream = this.processSingleChunkStream(
+      `整合以下总结：\n\n${summaries.join('\n\n')}`
+    );
+
+    for await (const chunk of finalSummaryStream) {
+      yield chunk;
     }
   }
 }
